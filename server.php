@@ -1,5 +1,6 @@
 <?php
 include_once 'search_video.php';
+include_once 'generate_Playlist.php';
 require_once __DIR__ . '/vendor/autoload.php';
 session_start();
 
@@ -39,11 +40,11 @@ class Main {
                 else throw new Exception('Bad option for search');
             break;
             case 'generate':      // TODO vérifier plus en profondeur les graines passées pour éviter les 'blagues'
-                if(count($split) >= 2)
+                if(count($split) == 2)
                 {
                     $var = substr($cmd, strlen('generate')+1);
-                    if($var == '' || ctype_space($var)) throw new Exception('Bad option for generate');
-                    echo "<p>$var</p>";
+                    if($var == '' || ctype_space($var)) throw new Exception('Bad option for generate');     /// TODO METTRE JUSTE ARGV 2
+                    echo json_encode(generatePlaylist($this->youtube, $var, 10,20,0.2));
                 }
                 else throw new Exception('Bad option for search');
             break;

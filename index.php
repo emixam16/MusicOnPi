@@ -52,8 +52,6 @@ function Auth()
     // Define an object that will be used to make all API requests.
     $youtube = new Google_Service_YouTube($client);
 
-    // Check if an auth token exists for the required scopes
-
     $tokenSessionKey = 'token-' . $client->prepareScopes();
     if (isset($_GET['code'])) {
       if (strval($_SESSION['state']) !== strval($_GET['state'])) {

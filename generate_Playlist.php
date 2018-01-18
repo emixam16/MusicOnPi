@@ -25,12 +25,10 @@
     function getRealSeed($ans, $probaReturn) {
         $val = rand() / getrandmax();
         $i = count($ans)- 1;   // On part de la dernière case
-        echo "before". $val .",". $i;
         while ($val < $probaReturn && $i > 0) {
             $val /= $probaReturn;
             $i -= 1;
         }
-        echo "<p> after".$i.",".$ans[$i]["id"]."</p>" ;
         return $ans[$i]["id"];
     }
 ?>
