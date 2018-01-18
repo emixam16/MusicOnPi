@@ -1,6 +1,6 @@
 <?php
 include_once 'server.php';
 $test = new Main();
-$test->Rest('search Tryo');
+$test->Rest('search Tryo hymne');
 
  ?>

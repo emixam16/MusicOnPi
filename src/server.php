@@ -29,7 +29,7 @@ class Main {
                 else throw new Exception('Bad option for volume');
             break;
             case 'search':      // TODO vérifier plus en profondeur les graines passées pour éviter les 'blagues'
-                if(count($split) == 2)
+                if(count($split) >= 2)
                 {
                     $var = substr($cmd, strlen('search')+1);
                     if($var == '' || ctype_space($var)) throw new Exception('Bad option for search');
@@ -39,7 +39,7 @@ class Main {
                 else throw new Exception('Bad option for search');
             break;
             case 'generate':      // TODO vérifier plus en profondeur les graines passées pour éviter les 'blagues'
-                if(count($split) == 2)
+                if(count($split) >= 2)
                 {
                     $var = substr($cmd, strlen('generate')+1);
                     if($var == '' || ctype_space($var)) throw new Exception('Bad option for generate');
