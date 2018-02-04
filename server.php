@@ -46,7 +46,7 @@ class Main {
                     if($var == '' || ctype_space($var)) throw new Exception('Bad option for generate');     /// TODO METTRE JUSTE ARGV 2
                     echo json_encode(generatePlaylist($this->youtube, $var, 10,20,0.2));
                 }
-                else throw new Exception('Bad option for search');
+                else throw new Exception('Bad option for generate');
             break;
             case 'addmusic':
                 if(count($split) == 2) // On ne peut pas se supprimer soi même
@@ -76,7 +76,7 @@ class Main {
             case 'stop':
                 if(count($split) == 1)
                     echo "ok";
-                else throw new Exception('Bad option for setmusic');
+                else throw new Exception('Bad option for stop');
             break;
             default: throw new Exception('Unknown command');
             break;
