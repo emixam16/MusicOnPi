@@ -32,7 +32,8 @@ ini_set('display_errors','1');
    throw new \Exception('please run "composer require google/apiclient:~2.0" in "' . __DIR__ .'"');
  }
  require_once __DIR__ . '/vendor/autoload.php';
- session_start();
+if(session_status() !== PHP_SESSION_ACTIVE)
+    session_start();
 
 
 
@@ -45,6 +46,8 @@ function Auth()
     $client->setClientId($OAUTH2_CLIENT_ID);
     $client->setClientSecret($OAUTH2_CLIENT_SECRET);
     $client->setScopes('https://www.googleapis.com/auth/youtube');
+    die(var_dump($_SERVER));
+    if(!isset($_SERVER[HTTP_HOST])) $_SERVER[HTTP_HOST] = '127.0.0.1/'
     $redirect = filter_var('http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'],
     FILTER_SANITIZE_URL);
 
