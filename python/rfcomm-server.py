@@ -16,7 +16,7 @@ class Downloader(Thread):
 		Thread.__init__(self)
 		self.id_mus = id_mus
 	def run(self):
-		subprocess.call(['youtube-dl',self.id_mus,'-x','-o','%(id)s.%(ext)s'])
+		subprocess.call(['youtube-dl',self.id_mus,'-x','-o','../sound/%(id)s.%(ext)s'])
 		fifo_music.put(self.id_mus);
 
 
@@ -27,7 +27,7 @@ class FIFODownloader(Thread):
 	def run(self):
 		id_mus = self.fifo.get()
 		while(id_mus != ''):
-			subprocess.call(['youtube-dl',id_mus,'-x','-o','%(id)s.%(ext)s'])
+			subprocess.call(['youtube-dl',id_mus,'-x','-o','../sound/%(id)s.%(ext)s'])
 			fifo_music.put(id_mus);
 			id_mus=self.fifo.get()
 
@@ -44,7 +44,7 @@ class FIFOReader(Thread):
 	def run(self):
 		id_mus = fifo_music.get()
 		while(id_mus != ''):
-			subprocess.call("mpv "+id_mus+".*",shell=True)
+			subprocess.call("mpv --input-file=/../config/mpvinput"+id_mus+".*",shell=True)
 			id_mus=fifo_music.get()
 		
 
@@ -55,7 +55,7 @@ server_sock.listen(1)
 port = server_sock.getsockname()[1]
 
 uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
-
+print 'before'
 advertise_service( server_sock, "SampleServer",
                    service_id = uuid,
                    service_classes = [ uuid, SERIAL_PORT_CLASS ],

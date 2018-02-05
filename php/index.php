@@ -45,9 +45,8 @@ function Auth()
     $client = new Google_Client();
     $client->setClientId($OAUTH2_CLIENT_ID);
     $client->setClientSecret($OAUTH2_CLIENT_SECRET);
-    $client->setScopes('https://www.googleapis.com/auth/youtube');
-    die(var_dump($_SERVER));
-    if(!isset($_SERVER[HTTP_HOST])) $_SERVER[HTTP_HOST] = '127.0.0.1/'
+    $client->setScopes('https://www.googleapis.com/auth/youtube'); 
+    if(!isset($_SERVER['HTTP_HOST'])) $_SERVER['HTTP_HOST'] = '127.0.0.1/api/';
     $redirect = filter_var('http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'],
     FILTER_SANITIZE_URL);
 
@@ -74,7 +73,7 @@ function Auth()
     // Check to ensure that the access token was successfully acquired.
     if ($client->getAccessToken()) {
 
-                file_put_contents('yt.data', serialize($youtube)    );
+                file_put_contents('../config/yt.data', serialize($youtube)    );
 
         return $youtube;
     }
