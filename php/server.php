@@ -4,9 +4,9 @@ include_once 'generate_Playlist.php';
 require_once __DIR__ . '/vendor/autoload.php';
 session_start();
 
-const MAX_VOLUME = 10;
+const MAX_VOLUME = 100;
 const PLAYLIST_LENGTH = 10;
-
+const mpvInput='../config/mpvInput';
 class Main {
     public  $youtube = null;
     private function isInteger($input)
@@ -18,7 +18,7 @@ class Main {
     public function Rest($cmd) {
         try {
             //var_dump($GLOBALS);
-            $this->youtube = unserialize(file_get_contents('yt.data'));
+            $this->youtube = unserialize(file_get_contents('../config/yt.data'));
             //$videos = searchVideo($this->youtube, "France Gall");
             //var_dump($videos);
             $cmd = htmlspecialchars($cmd);
@@ -26,7 +26,7 @@ class Main {
             switch ($split[0]) {
             case 'volume':
                 if(count($split) == 2  /*&& $this->isInteger(-3) */ && $this->isInteger($split[1]) && $split[1] >= 0 && $split[1] <= MAX_VOLUME)
-                    echo "<p>ok</p>";
+                    file_put_contents(mpvInput, 'set volume' . $split[1]);
                 else throw new Exception('Bad option for volume');
             break;
             case 'search':      // TODO vérifier plus en profondeur les graines passées pour éviter les 'blagues'
@@ -68,15 +68,10 @@ class Main {
                     echo "ok";
                 else throw new Exception('Bad option for setmusic');
             break;
-            case 'start':
+            case 'pause':
                 if(count($split) == 1)
-                    echo "ok";
+                    file_put_contents(mpvInput, 'cycle pause'); 
                 else throw new Exception('Bad option for start');
-            break;
-            case 'stop':
-                if(count($split) == 1)
-                    echo "ok";
-                else throw new Exception('Bad option for stop');
             break;
             default: throw new Exception('Unknown command');
             break;

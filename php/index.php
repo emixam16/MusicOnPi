@@ -72,10 +72,9 @@ function Auth()
 
     // Check to ensure that the access token was successfully acquired.
     if ($client->getAccessToken()) {
-
-                file_put_contents('../config/yt.data', serialize($youtube)    );
-
-        return $youtube;
+        file_put_contents('../config/yt.data', serialize($youtube)    );
+        echo ' You are successfully authenticated!';	
+	return $youtube;
     }
     else {
 
