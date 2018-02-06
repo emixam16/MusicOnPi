@@ -18,7 +18,7 @@ class Downloader(Thread):
 		Thread.__init__(self)
 		self.id_mus = id_mus
 	def run(self):
-		subprocess.call(['youtube-dl',self.id_mus,'-x','-o','%(id)s.%(ext)s'])
+		subprocess.call(['youtube-dl',self.id_mus,'-x','-o',"~/MusicOnPi/sound/%(id)s.%(ext)s"])
 		fifo_music.put(self.id_mus);
 
 
@@ -29,7 +29,7 @@ class FIFODownloader(Thread):
 	def run(self):
 		id_mus = self.fifo.get()
 		while(id_mus != ''):
-			subprocess.call(['youtube-dl',id_mus,'-x','-o','%(id)s.%(ext)s'])
+			subprocess.call(['youtube-dl',id_mus,'-x','-o',"~/MusicOnPi/sound/%(id)s.%(ext)s"])
 			fifo_music.put(id_mus);
 			id_mus=self.fifo.get()
 
@@ -38,7 +38,7 @@ class Reader(Thread):
 		Thread.__init__(self)
 		self.id_mus = id_mus
 	def run(self):
-		subprocess.call("mpv "+self.id_mus+".*",shell=True)
+		subprocess.call("mpv "+self.id_mus+".* --input-fil=~/MusicOnPi/config/mpvInput",shell=True)
 
 class FIFOReader(Thread):
 	def __init__(self):
@@ -46,7 +46,7 @@ class FIFOReader(Thread):
 	def run(self):
 		id_mus = fifo_music.get()
 		while(id_mus != ''):
-			subprocess.call("mpv "+id_mus+".*",shell=True)
+			subprocess.call("mpv "+id_mus+".* --input-file=~/MusicOnPi/config/mpvInput",shell=True)
 			id_mus=fifo_music.get()
 
 
@@ -153,12 +153,12 @@ try:
 		elif data[1] == 'Reponds':
 				data_out = 'Reponse!'
 
-		elif data[1] == 'PLAY':
-			subprocess.call(['mpv',id_musique+'.mp3'])
-			data_out = 'playing'
-		elif data[1] == 'PAUSE':
-			data_out = 'notplaying'
-			thread2.join()
+		elif data[1] == 'play':
+			subprocess.call(['php',"~/MusicOnPi/php/start.php","pause"])
+			#data_out = 'playing'
+#		elif data[1] == 'PAUSE':
+#			data_out = 'notplaying'
+#			thread2.join()
 		elif data[1] == 'search':
 			#TODO change path...
 			data2 = data[1]
