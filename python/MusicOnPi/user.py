@@ -22,8 +22,9 @@ class User(object):
 	def revoke_connection(self, socket):
 		pass
 
-	def disconnect(self):
-		self.authenticated = False
+	def disconnect(self, socket):
+		if socket in self.sockets:
+			self.sockets.remove(socket)
 
 	def hasSocket(self, socket):
 		for s in self.sockets:

@@ -109,7 +109,7 @@ class CommandManager(object):
 		return data_out
 
 	def decoCommand(self, params, user, source):
-		user.disconnect()
+		user.disconnect(source)
 
 	def run(self, command, params, user, source):
 		if(len(command) <= 0):
