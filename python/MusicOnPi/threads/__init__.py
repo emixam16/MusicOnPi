@@ -11,24 +11,26 @@ __all__ = ['Downloader',
 
 # TODO: use youtube_dl as a package instead of a process
 class Downloader(Thread):
-	def __init__(self, id_mus):
+	def __init__(self, id_mus, out_list):
 		Thread.__init__(self)
 		self.id_mus = id_mus
+		self.out = out_list
 
 	def run(self):
 		subprocess.call(['youtube-dl',self.id_mus,'-x','-o','%(id)s.%(ext)s'])
-		fifo_music.put(self.id_mus);
+		out.put(self.id_mus);
 
 class FIFODownloader(Thread):
-	def __init__(self, fifo):
+	def __init__(self, fifo, out):
 		Thread.__init__(self)
 		self.fifo = fifo
+		self.out = out
 
 	def run(self):
 		id_mus = self.fifo.get()
 		while(id_mus != ''):
 			subprocess.call(['youtube-dl',id_mus,'-x','-o','%(id)s.%(ext)s'])
-			fifo_music.put(id_mus);
+			self.out.put(id_mus);
 			id_mus=self.fifo.get()
 
 class Reader(Thread):

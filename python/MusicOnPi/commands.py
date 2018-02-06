@@ -41,7 +41,7 @@ class CommandManager(object):
 		#subprocess.call(['youtube-dl',id_musique,'-x','-o','%(id)s.%(ext)s'])
 		#subprocess.call(['youtube-dl',id_musique,'-x','--audio-format','mp3','-o','%(id)s.%(ext)s'])
 
-		thread1 = Downloader(fifo_download.get())
+		thread1 = Downloader(fifo_download.get(), user.context.pending_songs)
 		thread1.start()
 		thread1.join()
 
@@ -50,7 +50,7 @@ class CommandManager(object):
 		user.context.song_thread = thread2
 		data_out="playing"
 
-		thread3=FIFODownloader(fifo_download)
+		thread3=FIFODownloader(fifo_download, user.context.pending_songs)
 		thread3.start()
 		return "Started playing"
 

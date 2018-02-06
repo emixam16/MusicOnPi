@@ -1,3 +1,4 @@
+#!/bin/python
 # file: rfcomm-server.py
 # auth: Albert Huang <albert@csail.mit.edu>
 # desc: simple demonstration of a server application that uses RFCOMM sockets
@@ -58,12 +59,12 @@ port = server_sock.getsockname()[1]
 uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
 
 print("Lancement du client serveur")
-advertise_service( server_sock, "SampleServer",
-			service_id = uuid,
-			service_classes = [ uuid, SERIAL_PORT_CLASS ],
-			profiles = [ SERIAL_PORT_PROFILE ],
-			protocols = [ OBEX_UUID ]
-			)
+#advertise_service( server_sock, "SampleServer",
+#			service_id = uuid,
+#			service_classes = [ uuid, SERIAL_PORT_CLASS ],
+#			profiles = [ SERIAL_PORT_PROFILE ],
+#			protocols = [ OBEX_UUID ]
+#			)
 
 print "Waiting for connection on RFCOMM channel %d" % port
 
@@ -166,14 +167,14 @@ try:
 				data2 = data2 + ' ' + data[i]
 				i=i+1
 			print data2
-			x=subprocess.Popen(["php","../start.php", data2],stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			x=subprocess.Popen(["php","../php/start.php", data2],stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 			#print "code retour: ",x.wait()
 			#print "sortie erreur"
 			#print x.stderr.read()
 			#print "sortie standard"
 
 			output = x.stdout.read()
-			# print output
+			print output
 			output = json.loads(output)
 			fifo_download = Queue.Queue()
 
