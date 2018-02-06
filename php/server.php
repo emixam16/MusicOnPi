@@ -26,7 +26,7 @@ class Main {
             switch ($split[0]) {
             case 'volume':
                 if(count($split) == 2  /*&& $this->isInteger(-3) */ && $this->isInteger($split[1]) && $split[1] >= 0 && $split[1] <= MAX_VOLUME)
-                    file_put_contents(mpvInput, 'set volume' . $split[1]);
+                   exec ('echo "set volume '.$split[1].'" >../config/mpvInput'); 
                 else throw new Exception('Bad option for volume');
             break;
             case 'search':      // TODO vérifier plus en profondeur les graines passées pour éviter les 'blagues'
@@ -70,7 +70,7 @@ class Main {
             break;
             case 'pause':
                 if(count($split) == 1)
-                    file_put_contents(mpvInput, 'cycle pause'); 
+		    exec('echo "cycle pause" >../config/mpvInput');  
                 else throw new Exception('Bad option for start');
             break;
             default: throw new Exception('Unknown command');
