@@ -38,7 +38,7 @@ class Reader(Thread):
 		Thread.__init__(self)
 		self.id_mus = id_mus
 	def run(self):
-		subprocess.call("mpv "+self.id_mus+".* --input-fil=~/MusicOnPi/config/mpvInput",shell=True)
+		subprocess.call("mpv ~/MusicOnPi/sound/"+self.id_mus+".* --input-fil=~/MusicOnPi/config/mpvInput",shell=True)
 
 class FIFOReader(Thread):
 	def __init__(self):
@@ -46,7 +46,7 @@ class FIFOReader(Thread):
 	def run(self):
 		id_mus = fifo_music.get()
 		while(id_mus != ''):
-			subprocess.call("mpv "+id_mus+".* --input-file=~/MusicOnPi/config/mpvInput",shell=True)
+			subprocess.call("mpv ~/MusicOnPi/sound/"+id_mus+".* --input-file=~/MusicOnPi/config/mpvInput",shell=True)
 			id_mus=fifo_music.get()
 
 
@@ -154,8 +154,11 @@ try:
 				data_out = 'Reponse!'
 
 		elif data[1] == 'play':
-			subprocess.call(['php',"~/MusicOnPi/php/start.php","pause"])
-			#data_out = 'playing'
+			subprocess.call("php ~/MusicOnPi/php/start.php pause",shell=True)
+                elif data[1] == 'volume':
+                        print "php ~/MusicOnPi/php/start.php volume "+data[2]
+                        subprocess.call("php ~/MusicOnPi/php/start.php 'volume "+data[2]+'\'',shell=True)
+#data_out = 'playing'
 #		elif data[1] == 'PAUSE':
 #			data_out = 'notplaying'
 #			thread2.join()
