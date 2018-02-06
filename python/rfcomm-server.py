@@ -12,13 +12,14 @@ from threading import Thread
 from multiprocessing.pool import ThreadPool
 import Queue
 from hashlib import sha256
+from aes_encrypt import AESCipher
 
 class Downloader(Thread):
 	def __init__(self, id_mus):
 		Thread.__init__(self)
 		self.id_mus = id_mus
 	def run(self):
-		subprocess.call(['youtube-dl',self.id_mus,'-x','-o',"~/MusicOnPi/sound/%(id)s.%(ext)s"])
+		subprocess.call(['youtube-dl',self.id_mus,'-x','-o',"../sound/%(id)s.%(ext)s"])
 		fifo_music.put(self.id_mus);
 
 
@@ -29,7 +30,7 @@ class FIFODownloader(Thread):
 	def run(self):
 		id_mus = self.fifo.get()
 		while(id_mus != ''):
-			subprocess.call(['youtube-dl',id_mus,'-x','-o',"~/MusicOnPi/sound/%(id)s.%(ext)s"])
+			subprocess.call(['youtube-dl',id_mus,'-x','-o',"../sound/%(id)s.%(ext)s"])
 			fifo_music.put(id_mus);
 			id_mus=self.fifo.get()
 
@@ -38,7 +39,7 @@ class Reader(Thread):
 		Thread.__init__(self)
 		self.id_mus = id_mus
 	def run(self):
-		subprocess.call("mpv ~/MusicOnPi/sound/"+self.id_mus+".* --input-fil=~/MusicOnPi/config/mpvInput",shell=True)
+		subprocess.call("mpv ../sound/"+self.id_mus+".* --input-fil=../config/mpvInput",shell=True)
 
 class FIFOReader(Thread):
 	def __init__(self):
@@ -46,7 +47,7 @@ class FIFOReader(Thread):
 	def run(self):
 		id_mus = fifo_music.get()
 		while(id_mus != ''):
-			subprocess.call("mpv ~/MusicOnPi/sound/"+id_mus+".* --input-file=~/MusicOnPi/config/mpvInput",shell=True)
+			subprocess.call("mpv ../sound/"+id_mus+".* --input-file=../config/mpvInput",shell=True)
 			id_mus=fifo_music.get()
 
 
@@ -57,6 +58,8 @@ server_sock.listen(1)
 port = server_sock.getsockname()[1]
 
 uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
+
+
 
 print("Lancement du client serveur")
 #advertise_service( server_sock, "SampleServer",
@@ -78,15 +81,51 @@ data_out=''
 fifo_music = Queue.Queue()
 
 authentifie=' '
+cipher=None
 
+key = open("key.txt", "r").read()
 try:
 	while True:
+		
 		datas = client_sock.recv(1024)
+		print 'Recieved' , datas
+		offFile = open("offset", "r")
+		offset = int(offFile.read()) 
+		print("Decrypt - before ", offset)
+		i=0
+		out = [None] * len(datas)
+		while(i < len(datas)):
+			out[i] = chr(ord(datas[i]) ^ ord(key[offset]))
+			offset = (offset+1) % len(key)
+			i+=1 
+		offFile.close() 
+		offFile = open("offset", "w")
+		offFile.write(str(offset)) 
+		print("Decrypt - after ", offset)
+		print 'decoded + ', out	
+		datas=''.join(out);
+		print 'final' ,datas
 		if len(datas) == 0:
 			break
+
+		print "received [%s]" % datas
+		if cipher is not None:
+			datas = cipher.decrypt(datas)
 		print "received [%s]" % datas
 		data = datas.split(' ')
 
+		print(len(data))
+		data_out = ""
+
+		#if data[1] == 'setkey':
+		#	print('Set key')
+		#	if cipher is None:
+		#		print("new key: '", data[2], "'")
+		#		cipher = AESCipher(data[2])
+		#		cipher = AESCipher("this is my key")
+		#		data_out = 'Key set'
+		#	else:
+		#		data_out = 'Key already set'
 		if (data[1] == 'auth' and len(data) == 3):
 			login = data[0]
 			hashe = data[2]
@@ -154,13 +193,12 @@ try:
 				data_out = 'Reponse!'
 
 		elif data[1] == 'play':
-			subprocess.call("php ~/MusicOnPi/php/start.php pause",shell=True)
+			print("Playing")
+			print(subprocess.call("php ../php/start.php pause", shell=True))
+
                 elif data[1] == 'volume':
-                        print "php ~/MusicOnPi/php/start.php volume "+data[2]
-                        subprocess.call("php ~/MusicOnPi/php/start.php 'volume "+data[2]+'\'',shell=True)
-#data_out = 'playing'
-#		elif data[1] == 'PAUSE':
-#			data_out = 'notplaying'
+                        #print "php ../php/start.php volume "+data[2]
+                        subprocess.call("php ../php/start.php 'volume "+data[2]+'\'',shell=True)
 #			thread2.join()
 		elif data[1] == 'search':
 			#TODO change path...
@@ -192,12 +230,31 @@ try:
 
 			thread2=FIFOReader()
 			thread2.start()
-			data_out="playing"
+			#data_out="playing"
 
 			thread3=FIFODownloader(fifo_download)
 			thread3.start()
 
-		client_sock.send(data_out)
+		else:
+			print("no instruction", data)
+		print("ToSend", data_out)
+		print("Encrypt - before ", offset)
+		offFile = open("offset", "r")
+		offset = int(offFile.read()) 
+		i=0
+		out = [None] * len(data_out)
+		while(i < len(data_out)):
+			out[i] = chr(ord(data_out[i]) ^ ord(key[offset]))
+			offset = (offset+1) % len(key)
+			i+=1 
+		offFile.close() 
+		offFile = open("offset", "w")
+		offFile.write(str(offset)) 
+		print('ToSend encoded ', out)
+		print("Encrypt - after ", offset)
+		data_out=''.join(out);
+	
+		client_sock.send(data_out) # if cipher is None else cipher.encrypt(data_out))
 
 except IOError:
 	pass

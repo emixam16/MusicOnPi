@@ -25,7 +25,7 @@ class Main {
             $split = explode(" ", $cmd);
             switch ($split[0]) {
             case 'volume':
-                if(count($split) == 2  /*&& $this->isInteger(-3) */ && $this->isInteger($split[1]) && $split[1] >= 0 && $split[1] <= MAX_VOLUME)
+                if(count($split) == 2  && $this->isInteger($split[1])  && $split[1] >= 0 && $split[1] <= MAX_VOLUME)
                    exec ('echo "set volume '.$split[1].'" >../config/mpvInput'); 
                 else throw new Exception('Bad option for volume');
             break;
