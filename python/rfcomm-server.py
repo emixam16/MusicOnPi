@@ -12,15 +12,16 @@ from threading import Thread
 from multiprocessing.pool import ThreadPool
 import Queue
 from hashlib import sha256
-from aes_encrypt import AESCipher
+#from aes_encrypt import AESCipher
+#import sleep
 
-class Downloader(Thread):
-	def __init__(self, id_mus):
-		Thread.__init__(self)
-		self.id_mus = id_mus
-	def run(self):
-		subprocess.call(['youtube-dl',self.id_mus,'-x','-o',"../sound/%(id)s.%(ext)s"])
-		fifo_music.put(self.id_mus);
+#class Downloader(Thread):
+#	def __init__(self, id_mus):
+#		Thread.__init__(self)
+#		self.id_mus = id_mus
+#	def run(self):
+#		subprocess.call(['youtube-dl',self.id_mus,'-x','-o',"../sound/%(id)s.%(ext)s"])
+#		fifo_music.put(self.id_mus);
 
 
 class FIFODownloader(Thread):
@@ -28,27 +29,25 @@ class FIFODownloader(Thread):
 		Thread.__init__(self)
 		self.fifo = fifo
 	def run(self):
-		id_mus = self.fifo.get()
-		while(id_mus != ''):
+		while True:
+			id_mus = self.fifo.get(block=True, timeout=None)
 			subprocess.call(['youtube-dl',id_mus,'-x','-o',"../sound/%(id)s.%(ext)s"])
 			fifo_music.put(id_mus);
-			id_mus=self.fifo.get()
 
-class Reader(Thread):
-	def __init__(self, id_mus):
-		Thread.__init__(self)
-		self.id_mus = id_mus
-	def run(self):
-		subprocess.call("mpv ../sound/"+self.id_mus+".* --input-fil=../config/mpvInput",shell=True)
+#class Reader(Thread):
+#	def __init__(self, id_mus):
+#		Thread.__init__(self)
+#		self.id_mus = id_mus
+#	def run(self):
+#		subprocess.call("mpv ../sound/"+self.id_mus+".* --input-fil=../config/mpvInput",shell=True)
 
 class FIFOReader(Thread):
 	def __init__(self):
 		Thread.__init__(self)
 	def run(self):
-		id_mus = fifo_music.get()
-		while(id_mus != ''):
+		while True:
+			id_mus = fifo_music.get(block=True, timeout=None)
 			subprocess.call("mpv ../sound/"+id_mus+".* --input-file=../config/mpvInput",shell=True)
-			id_mus=fifo_music.get()
 
 
 server_sock=BluetoothSocket( RFCOMM )
@@ -78,11 +77,16 @@ pool = ThreadPool(processes=2)
 
 data_out=''
 
-fifo_music = Queue.Queue()
 
 authentifie=' '
 cipher=None
 
+fifo_music = Queue.Queue()
+fifo_download = Queue.Queue()
+thread2=FIFOReader()
+thread2.start()
+thread3=FIFODownloader(fifo_download)
+thread3.start()
 key = open("key.txt", "r").read()
 try:
 	while True:
@@ -217,23 +221,18 @@ try:
 			output = x.stdout.read()
 			print output
 			output = json.loads(output)
-			fifo_download = Queue.Queue()
 
 			for i in range(10):
 				fifo_download.put(output[i]['id'])
 
 			id_musique = output[0]['id']
 
-			thread1 = Downloader(fifo_download.get())
-			thread1.start()
-			thread1.join()
+			#thread1 = Downloader(fifo_download.get())
+			#thread1.start()
+			#thread1.join()
 
-			thread2=FIFOReader()
-			thread2.start()
 			#data_out="playing"
 
-			thread3=FIFODownloader(fifo_download)
-			thread3.start()
 
 		else:
 			print("no instruction", data)
